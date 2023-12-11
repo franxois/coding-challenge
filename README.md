@@ -101,3 +101,22 @@ Your task is to fix all the bugs so application runs as intended. Here is what i
 - Company Vision
 
 - Other questions
+
+```
+SELECT
+	w.id,
+	count(a.id) as fishing_count,
+	count(e.id) as enrolment_count,
+	min( a.created_at ),
+	min( e.created_at )
+FROM
+	workspaces w
+	JOIN user_workspaces uw ON (uw.workspace_id = w.id)
+	LEFT JOIN attacks a ON (a.employee_id = uw.employee_id and a.created_at < NOW() - INTERVAL '1 year' )
+	LEFT JOIN enrolments e ON (e.employee_id = uw.employee_id and e.created_at < NOW() - INTERVAL '1 year' )
+WHERE
+	stripe_subscription_id IS NULL
+	AND uw.user_last_seen_at < NOW() - INTERVAL '1 year'
+GROUP BY
+	w.id;
+```

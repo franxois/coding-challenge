@@ -1,15 +1,17 @@
 import { Handler, Hono } from "hono";
-import * as dayjs from "dayjs";
 import { prisma } from "../../utils/db.utils";
-import { StatsPurchaseInput } from "../../types";
+import dayjs from "dayjs";
 
 const router = new Hono();
 
 const getProductsPurchasedBetween: Handler = async (c) => {
-  const body = c.body as any as StatsPurchaseInput;
-  const { from, to } = body;
-  const fromDate = dayjs(from).toDate();
-  const toDate = dayjs(to).toDate();
+  const from = c.req.query("from");
+  const to = c.req.query("to");
+
+  const fromDate = dayjs(from, "DD-MM-YYYY").toDate();
+  const toDate = dayjs(to, "DD-MM-YYYY").toDate();
+
+  console.log(fromDate, toDate);
 
   const purchasesIn = await prisma.purchase.findMany({
     where: {
@@ -18,6 +20,7 @@ const getProductsPurchasedBetween: Handler = async (c) => {
         lte: toDate,
       },
     },
+    orderBy: [{ purchasedAt: "asc" }],
   });
   return c.json(purchasesIn);
 };
@@ -41,6 +44,5 @@ const getCustomersWithNoPurchasesInPastYear: Handler = async (c) => {
 
 router.get("/products", getProductsPurchasedBetween);
 router.get("/customers", getCustomersWithNoPurchasesInPastYear);
-
 
 export { router };

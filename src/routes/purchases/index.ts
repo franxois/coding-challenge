@@ -6,9 +6,10 @@ import { router as statsRouter } from "./stats.route";
 
 const router = new Hono();
 
-const purchaseProduct: Handler = (c) => {
-  const body = c.req.body as any as CustomerPurchaseProduct;
-  const purchased = prisma.purchase.create({
+const purchaseProduct: Handler = async (c) => {
+  const body = (await c.req.json()) as CustomerPurchaseProduct;
+
+  const purchased = await prisma.purchase.create({
     data: {
       productId: body.productId,
       customerId: body.customerId,
@@ -17,10 +18,7 @@ const purchaseProduct: Handler = (c) => {
   return c.json(purchased);
 };
 
-
-
-router.get("/", purchaseProduct);
+router.post("/", purchaseProduct);
 router.route("/stats", statsRouter);
-
 
 export { router };

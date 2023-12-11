@@ -3,9 +3,15 @@ import { prisma } from "../utils/db.utils";
 
 const router = new Hono();
 
-const getCustomers: Handler = (c) => {
-  const products = prisma.product.findMany();
-  return c.json(products);
+/**
+ * Return lots of customers, in production, should paginate results
+ */
+const getCustomers: Handler = async (c) => {
+  const customers = await prisma.customer.findMany({
+    //    take: size
+    //    skip: offset
+  });
+  return c.json(customers);
 };
 
 const getCustomerPurchaseHistory: Handler = (c) => {
